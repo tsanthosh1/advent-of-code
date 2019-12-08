@@ -1,8 +1,8 @@
 use std::str::Lines;
 
-pub fn get_fuel_requirement(lines: Lines) -> i32{
+pub fn get_fuel_requirement(module_masses: Lines) -> i32{
     let mut total_requirement = 0;
-    for module_mass in lines {
+    for module_mass in module_masses {
         let one_third_of_mass = (module_mass.parse::<i32>().unwrap() / 3) as f32;
         total_requirement = (one_third_of_mass.floor() as i32 - 2) + total_requirement;
     }
