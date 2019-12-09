@@ -65,6 +65,7 @@ mod tests {
 
     #[test]
     fn it_works() {
+        assert_eq!(intcode(String::from("2,4,3,4,33").as_str(), false).join(","), "2,4,3,4,132");
         assert_eq!(intcode(String::from("1,0,0,0,99").as_str(), false).join(","), "2,0,0,0,99");
         assert_eq!(intcode(String::from("2,3,0,3,99").as_str(), false).join(","), "2,3,0,6,99");
         assert_eq!(intcode(String::from("2,4,4,5,99,0").as_str(), false).join(","), "2,4,4,5,99,9801");
