@@ -40,6 +40,8 @@ fn intcode(input: &str, device_id: &str) -> (Vec<String>, i32) {
                 panic!("Invalid opcode")
             }
         }
+
+        println!("{}", codes.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(","))
     }
     (codes, 0)
 }
