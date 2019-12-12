@@ -1,1 +1,1 @@
-mod intcode;
+pub mod intcode;
