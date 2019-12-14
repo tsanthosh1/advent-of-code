@@ -3,6 +3,12 @@ use std::cmp::max;
 use std::collections::HashMap;
 
 static DEBUG: bool = false;
+/*
+
+    PROGRAMMING HORRORS AHEAD!!!
+    //TODO refactor.
+
+*/
 
 pub fn main() {
     let input = include_str!("../../data/seven.data");

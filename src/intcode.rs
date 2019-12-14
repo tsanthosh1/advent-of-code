@@ -96,7 +96,7 @@ impl IntCode {
                 8 => self.on_both_parameters_equal(),
                 9 => self.adjust_relative_base(),
                 _ => {
-                    panic!("Invalid opcode")
+                    unreachable!("Invalid opcode")
                 }
             }
             if DEBUG_EACH_OPERATION_OUTPUT { self.print_memory() }
