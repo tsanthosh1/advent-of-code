@@ -2,19 +2,21 @@ use num::pow;
 
 static DEBUG_SHOW_INPUT_OUTPUT: bool = false;
 static DEBUG_EACH_OPERATION_OUTPUT: bool = false;
+static TRACE: bool = false;
 
 pub struct IntCode {
     program: Vec<i64>,
-    current_opcode_position: usize,
-    current_instruction: i64,
+    pub current_opcode_position: usize,
+    pub current_instruction: i64,
     input: Option<i64>,
     output: Vec<i64>,
     relative_base: i64,
     should_stop_at_memory_not_available: bool,
+    immediate_output_mode: bool
 }
 
 impl IntCode {
-    pub fn initialize(program: &str, input: Option<i64>) -> IntCode {
+    pub fn initialize(program: &str, input: Option<i64>, immediate_output_mode: bool) -> IntCode {
         IntCode {
             program: program
                 .split(',')
@@ -26,6 +28,7 @@ impl IntCode {
             output: Vec::new(),
             relative_base: 0,
             should_stop_at_memory_not_available: false,
+            immediate_output_mode
         }
     }
 
@@ -85,6 +88,9 @@ impl IntCode {
             && self.get_memory(self.current_opcode_position) != 99 {
             self.current_instruction = self.get_memory(self.current_opcode_position);
 
+            if DEBUG_EACH_OPERATION_OUTPUT { println!("OPCODE {}", self.current_instruction) }
+            if DEBUG_EACH_OPERATION_OUTPUT { println!("POSITION {}", self.current_opcode_position) }
+
             match self.current_instruction % 10 {
                 1 => self.add(),
                 2 => self.multiply(),
@@ -99,7 +105,8 @@ impl IntCode {
                     unreachable!("Invalid opcode")
                 }
             }
-            if DEBUG_EACH_OPERATION_OUTPUT { self.print_memory() }
+//            if DEBUG_EACH_OPERATION_OUTPUT { self.print_memory() }
+
         }
     }
 
@@ -125,35 +132,46 @@ impl IntCode {
         let output_position = self.get_output_position(1);
 
         if self.input.is_none() { panic!(dbg!("No input")) }
+        if TRACE { println!("Storing {} in {}", self.input.unwrap(), output_position)}
         self.store_memory(output_position, self.input.unwrap());
+        self.input = None;
         self.current_opcode_position += 2;
     }
 
     fn store_output(&mut self) -> bool {
-        let input = self.get_instruction_parameter(1);
+        let output = self.get_instruction_parameter(1);
 
         self.current_opcode_position += 2;
         let next_command = &self.get_memory(self.current_opcode_position);
+        self.output.push(output);
 
-        println!("{}", input);
+        if self.immediate_output_mode {
+            return true
+        }
+
         // TODO Add immediate output mode
-        if input != 0 && *next_command != 99 && false {
+        if output != 0 && *next_command != 99 && false {
             panic!("It can't be non-zero")
         }
-        self.output.push(input);
         *next_command == 99
     }
 
     fn jump_if_true(&mut self) {
         let input1 = self.get_instruction_parameter(1);
         let input2 = self.get_instruction_parameter(2);
+
+        if TRACE { println!("Jumping from {} to {}", self.current_opcode_position, input2)}
         self.current_opcode_position =
             if input1 != 0 { input2 as usize } else { self.current_opcode_position + 3 }
+
     }
 
     fn jump_if_false(&mut self) {
         let input1 = self.get_instruction_parameter(1);
         let input2 = self.get_instruction_parameter(2);
+
+        if TRACE { println!("Jumping from {} to {}", self.current_opcode_position, input2)}
+
         self.current_opcode_position =
             if input1 == 0 { input2 as usize } else { self.current_opcode_position + 3 } as usize
     }
@@ -183,6 +201,20 @@ impl IntCode {
         self.current_opcode_position += 2
     }
 
+    pub fn set_input(&mut self, input: i64) {
+        self.input = Some(input);
+    }
+
+    pub fn has_output(&self) -> bool {
+        self.output.len() != 0
+    }
+
+    pub fn take_output(&mut self) -> Vec<i64>{
+        let temp = self.output.clone();
+        self.output = vec![];
+        temp
+    }
+
     fn print_memory(&self) {
         println!("{}", self.program.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(","))
     }
@@ -202,7 +234,7 @@ mod tests {
 
     #[test]
     fn uses_input_mode() {
-        let mut intcode = IntCode::initialize(String::from("1002,4,3,4,33").as_str(), Some(1));
+        let mut intcode = IntCode::initialize(String::from("1002,4,3,4,33").as_str(), Some(1), false);
         intcode.execute();
 
         assert_eq!(intcode.memory_string(), "1002,4,3,4,99");
@@ -266,7 +298,7 @@ mod tests {
     }
 
     pub fn intcode_execute(program: &str, input: Option<i64>) -> IntCode {
-        let mut intcode = IntCode::initialize(String::from(program).as_str(), input);
+        let mut intcode = IntCode::initialize(String::from(program).as_str(), input, false);
         intcode.execute();
         intcode
     }
