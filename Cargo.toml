@@ -14,6 +14,7 @@ num-traits = "0.2"
 piston = "0.49.0"
 itertools = "0.8.2"
 libmath = "0.2.1"
+plotlib = "0.4.0"
 [lib]
 name = "intcode"
 path = "src/intcode.rs"

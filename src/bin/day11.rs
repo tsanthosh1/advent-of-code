@@ -1,6 +1,11 @@
 use std::str::Lines;
 use intcode::IntCode;
 use std::collections::HashMap;
+use plotlib::scatter::Scatter;
+use plotlib::view::ContinuousView;
+use plotlib::scatter;
+use plotlib::style::Point;
+use plotlib::page::Page;
 
 type Panel = (i32, i32);
 const UP: i32 = 0;
@@ -23,7 +28,7 @@ fn paint_panels(contents: &str) {
     let mut panels: HashMap<Panel, i64> = HashMap::new();
     let mut current_panel = (0, 0);
     let mut current_direction = UP;
-    panels.insert(current_panel, BLACK);
+    panels.insert(current_panel, WHITE);
 
     let mut intcode = IntCode::initialize(
         contents,
@@ -41,6 +46,22 @@ fn paint_panels(contents: &str) {
         if !intcode.has_output() {
             println!("No output exiting: {:?}", panels);
             println!("count {}", panels.len());
+            let data2 = panels.iter()
+                .filter(|&x| *x.1 == 1)
+                .map(|x| (*x.0))
+                .map(|x| (x.0 as f64, x.1 as f64))
+                .collect::<Vec<(f64, f64)>>();
+            let s2 = Scatter::from_slice(&data2)
+                .style(scatter::Style::new() // uses the default marker
+                    .colour("#35C788"));
+            let v = ContinuousView::new()
+                .add(&s2)
+                .x_range(-44., 44.)
+                .y_range(-22., 22.)
+                .x_label("Some varying variable")
+                .y_label("The response of something");
+            Page::single(&v).save("./src/out/part11.svg");
+            println!("{}", Page::single(&v).to_text().unwrap());
             break
         }
         panels.insert(current_panel, intcode.take_output()[0]);
@@ -55,9 +76,9 @@ fn paint_panels(contents: &str) {
 
 fn move_panel(current_panel: &(i32, i32), current_direction: i32) -> (i32, i32) {
     match current_direction {
-        UP => (current_panel.0, current_panel.1 - 1),
+        UP => (current_panel.0, current_panel.1 + 1),
         RIGHT => (current_panel.0 + 1, current_panel.1),
-        DOWN => (current_panel.0, current_panel.1 + 1),
+        DOWN => (current_panel.0, current_panel.1 - 1),
         LEFT => (current_panel.0 - 1, current_panel.1),
         _ => panic!()
     }
@@ -80,6 +101,5 @@ mod tests {
     use crate::paint_panels;
 
     fn paints_panels() {
-//        paint_panels()
     }
 }
