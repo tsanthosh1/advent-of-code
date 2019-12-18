@@ -348,6 +348,6 @@ mod tests {
         println!("{:?}", &moons[1]);
         println!("{:?}", &moons[2]);
         println!("{:?}", &moons[3]);
-        find_complete_revolution_time(&mut moons);
+        assert_eq!(find_complete_revolution_time(&mut moons), 2772);
     }
 }
