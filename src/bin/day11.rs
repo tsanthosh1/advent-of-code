@@ -51,15 +51,13 @@ fn paint_panels(contents: &str) {
                 .map(|x| (*x.0))
                 .map(|x| (x.0 as f64, x.1 as f64))
                 .collect::<Vec<(f64, f64)>>();
-            let s2 = Scatter::from_slice(&data2)
-                .style(scatter::Style::new() // uses the default marker
+            let scatter = Scatter::from_slice(&data2)
+                .style(scatter::Style::new()
                     .colour("#35C788"));
             let v = ContinuousView::new()
-                .add(&s2)
+                .add(&scatter)
                 .x_range(-44., 44.)
-                .y_range(-22., 22.)
-                .x_label("Some varying variable")
-                .y_label("The response of something");
+                .y_range(-22., 22.);
             Page::single(&v).save("./src/out/part11.svg");
             println!("{}", Page::single(&v).to_text().unwrap());
             break
