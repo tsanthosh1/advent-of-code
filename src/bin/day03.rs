@@ -1,6 +1,7 @@
 use std::fmt;
 use std::f64::MAX;
 use std::cmp::min;
+use num_traits::real::Real;
 
 #[derive(Copy, Clone)]
 struct Point {
