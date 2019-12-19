@@ -2,26 +2,27 @@ use std::cmp::min;
 
 pub fn main() {
     let input = include_str!("../../data/two.data");
-    let mut codes: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
+    let mut memory: Vec<String> = input.split(',').map(|s| s.to_string()).collect();
+    let (noun, verb) = get_noun_and_verb_required_for_expected_output(memory, String::from("19690720"));
+    println!("noun and verb combination that produces required output is : {}", (noun * 100) + verb);
+}
+
+fn get_noun_and_verb_required_for_expected_output(mut memory: Vec<String>, expected_output: String) -> (i32, i32) {
     let mut success = false;
-    let noun_and_verb_limit = (min(99, codes.len()) + 1) as i32;
+    let noun_and_verb_limit = (min(99, memory.len()) + 1) as i32;
     'outer: for noun in 0..noun_and_verb_limit {
         'inner: for verb in 0..noun_and_verb_limit {
-            let mut input_codes = codes.clone();
-            let intcode_output = intcode(&mut input_codes, &noun, &verb);
-            if intcode_output[0] == String::from("19690720") {
-                println!("noun and verb: {}", (noun * 100) + verb);
-                success = true;
-                break 'outer
+            let mut memory_copy = memory.clone();
+            let intcode_output = intcode(&mut memory_copy, &noun, &verb);
+            if intcode_output[0] == expected_output {
+                return (noun, verb)
             }
         }
     }
-    if !success {
-        println!("No solution")
-    }
+    panic!("No solution");
 }
 
-fn intcode(codes: &mut Vec<String>, noun: &i32, verb: &i32) -> Vec<String> {
+fn intcode<'a>(codes: &'a mut Vec<String>, noun: &i32, verb: &i32) -> &'a Vec<String> {
     codes[1] = noun.to_string();
     codes[2] = verb.to_string();
     let mut current_opcode_position = 0;
@@ -50,5 +51,5 @@ fn intcode(codes: &mut Vec<String>, noun: &i32, verb: &i32) -> Vec<String> {
 
         current_opcode_position += 4;
     }
-    codes.to_vec()
+    codes
 }

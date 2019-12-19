@@ -1,6 +1,6 @@
 use std::str::Lines;
 
-pub fn get_fuel_requirement(module_masses: Lines) -> i32{
+pub fn get_total_fuel_requirement(module_masses: Lines) -> i32{
     let mut total_requirement = 0;
     for module_mass in module_masses {
         let parsed_module_mass = module_mass.parse::<i32>().unwrap();
@@ -23,19 +23,19 @@ pub fn main() {
     let contents = include_str!("../../data/one-part-two.data");
     let module_masses = contents.lines();
 
-    println!("Total fuel required: {}", get_fuel_requirement(module_masses))
+    println!("Total fuel required: {}", get_total_fuel_requirement(module_masses))
 }
 
 
 
 #[cfg(test)]
 mod tests {
-    use crate::{get_fuel_requirement};
+    use crate::{get_total_fuel_requirement};
 
     #[test]
     fn it_works() {
-        assert_eq!(get_fuel_requirement("14".lines()), 2);
-        assert_eq!(get_fuel_requirement("1969".lines()), 966);
-        assert_eq!(get_fuel_requirement("100756".lines()), 50346);
+        assert_eq!(get_total_fuel_requirement("14".lines()), 2);
+        assert_eq!(get_total_fuel_requirement("1969".lines()), 966);
+        assert_eq!(get_total_fuel_requirement("100756".lines()), 50346);
     }
 }

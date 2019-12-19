@@ -5,14 +5,15 @@ static DEBUG_EACH_OPERATION_OUTPUT: bool = false;
 static TRACE: bool = false;
 
 pub struct IntCode {
-    program: Vec<i64>,
+    pub program: Vec<i64>,
     pub current_opcode_position: usize,
     pub current_instruction: i64,
     input: Option<i64>,
     output: Vec<i64>,
     relative_base: i64,
     should_stop_at_memory_not_available: bool,
-    immediate_output_mode: bool
+    immediate_output_mode: bool,
+    pub is_terminated: bool
 }
 
 impl IntCode {
@@ -28,7 +29,8 @@ impl IntCode {
             output: Vec::new(),
             relative_base: 0,
             should_stop_at_memory_not_available: false,
-            immediate_output_mode
+            immediate_output_mode,
+            is_terminated: false
         }
     }
 
@@ -105,9 +107,9 @@ impl IntCode {
                     unreachable!("Invalid opcode")
                 }
             }
-//            if DEBUG_EACH_OPERATION_OUTPUT { self.print_memory() }
-
+            if DEBUG_EACH_OPERATION_OUTPUT { self.print_memory() }
         }
+        self.is_terminated = true;
     }
 
     fn add(&mut self) {
