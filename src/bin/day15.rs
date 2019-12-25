@@ -49,16 +49,16 @@ impl MazeBlock {
 pub fn main() {
     let contents = include_str!("../../data/fifteen.data");
     let maze = grid(contents);
-    println!("Shortest path {}", bfs_shortest_path(&maze));
+
+    let start = (0, 0);
+    let end = get_oxygen_cylinder_location(&maze);
+    println!("Shortest path {}", bfs_shortest_path(&maze, start, end));
 }
 
-fn bfs_shortest_path(maze: &HashMap<(i64, i64), MazeBlock>) -> i64 {
+fn bfs_shortest_path(maze: &HashMap<(i64, i64), MazeBlock>, start: (i64, i64), end: (i64, i64)) -> i64 {
     let mut queue: Queue<Position> = queue![];
     let mut visited_vertices: HashMap<Position, bool> = HashMap::new();
     let mut distance_from_source: HashMap<Position, i64> = HashMap::new();
-
-    let start = (0, 0);
-    let end = get_oxygen_cylinder_location(maze);
 
     let adjacency_list = create_adjacency_list(&maze);
 
@@ -208,11 +208,13 @@ fn get_next_position(
         let next_position_and_direction = possible_movements.iter()
             .find(|&(position, _)| !is_visited(*position, maze));
 
+        //go forward
         if next_position_and_direction.is_some() {
             let (position, direction) = *next_position_and_direction.unwrap();
             return Some((position, direction, false));
         }
 
+        //hit wall. Go backward
         let maze_block =
             maze.get(&current_position).unwrap().clone();
 
