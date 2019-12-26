@@ -8,6 +8,9 @@ use crate::PositionStatus::{Wall, NotVisited, Visited, LocationOfOxygenSystem, H
 use queues::*;
 use std::hash::Hash;
 use std::f32::MAX;
+use std::cmp::Ordering::Equal;
+use num_traits::abs;
+use permutator::x_permutation;
 
 static NORTH: i64 = 1;
 static SOUTH: i64 = 2;
@@ -49,10 +52,54 @@ impl MazeBlock {
 pub fn main() {
     let contents = include_str!("../../data/fifteen.data");
     let maze = grid(contents);
+    let oxygen_cylinder_location = get_oxygen_cylinder_location(&maze);
 
     let start = (0, 0);
-    let end = get_oxygen_cylinder_location(&maze);
+    let end = oxygen_cylinder_location;
     println!("Shortest path {}", bfs_shortest_path(&maze, start, end));
+
+    let adjacency_list = create_adjacency_list(&maze);
+    let vertices_with_more_than_one_neighbour =
+        adjacency_list.keys()
+        .filter(|key| adjacency_list.get(key).unwrap().len() > 1)
+        .collect_vec();
+
+    let depth = bfs_traversal_depth(&maze, oxygen_cylinder_location);
+    println!("Time taken to fill oxygen {}", depth);
+}
+
+fn bfs_traversal_depth(maze: &HashMap<(i64, i64), MazeBlock>, start: (i64, i64)) -> i64 {
+    let mut queue: Queue<Position> = queue![];
+    let mut visited_vertices: HashMap<Position, bool> = HashMap::new();
+    let mut distance_from_source: HashMap<Position, i64> = HashMap::new();
+
+    let adjacency_list = create_adjacency_list(&maze);
+
+    adjacency_list.keys()
+        .for_each(|key| {
+            visited_vertices.insert(*key, false);
+            distance_from_source.insert(*key, MAX as i64);
+        });
+
+    visited_vertices.insert(start, true);
+    distance_from_source.insert(start, 0);
+    queue.add(start);
+
+    while queue.peek().is_ok() {
+        let next_vertex = queue.remove().ok().unwrap();
+        let neighbours = adjacency_list.get(&next_vertex).unwrap();
+        for neighbour in neighbours {
+            if !visited_vertices.get(&neighbour).unwrap() {
+                visited_vertices.insert(*neighbour, true);
+                let distance = distance_from_source.get(&next_vertex).unwrap() + 1;
+                distance_from_source.insert(
+                    *neighbour,
+                    distance);
+                queue.add(*neighbour);
+            }
+        }
+    };
+    *distance_from_source.values().max().unwrap()
 }
 
 fn bfs_shortest_path(maze: &HashMap<(i64, i64), MazeBlock>, start: (i64, i64), end: (i64, i64)) -> i64 {
@@ -93,7 +140,7 @@ fn bfs_shortest_path(maze: &HashMap<(i64, i64), MazeBlock>, start: (i64, i64), e
 }
 
 fn create_adjacency_list(
-    maze: &&HashMap<(i64, i64), MazeBlock>
+    maze: &HashMap<(i64, i64), MazeBlock>
 ) -> HashMap<(i64, i64), Vec<(i64, i64)>> {
     maze.keys()
         .filter(|x| is_visitable_position(maze.get(&x).unwrap().status))
@@ -145,7 +192,7 @@ fn grid(contents: &str) -> HashMap<Position, MazeBlock> {
                         next_position,
                         Visited,
                         Some(current_position),
-                        Some(direction)
+                        Some(direction),
                     ));
                 }
                 current_position = next_position;
@@ -156,7 +203,7 @@ fn grid(contents: &str) -> HashMap<Position, MazeBlock> {
                         next_position,
                         LocationOfOxygenSystem,
                         Some(current_position),
-                        Some(direction)
+                        Some(direction),
                     ));
                 }
                 current_position = next_position;
