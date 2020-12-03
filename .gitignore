@@ -1,4 +1,6 @@
 /2019/target
+/node_modules
 **/*.rs.bk
 .idea/*
 .DS_Store
+package-lock.json
