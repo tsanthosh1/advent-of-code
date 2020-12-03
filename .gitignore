@@ -1,5 +1,5 @@
 /2019/target
-/node_modules
+/**/node_modules
 **/*.rs.bk
 .idea/*
 .DS_Store
