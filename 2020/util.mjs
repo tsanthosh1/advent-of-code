@@ -1,5 +1,5 @@
 import fs from "fs";
-import {filter, map, pipe, split} from "ramda";
+import {filter, forEach, map, pipe, split} from "ramda";
 
 
 export const fileToNumbers = async (file) => {
@@ -23,3 +23,18 @@ export const linesToNumbers = (lines) => {
 export const isBetween = (n, min, max) => {
   return (n <= max) && (n >= min);
 }
+
+export const intersectionOfLists = (lists) => {
+  return lists.reduce((agg, list) => {
+    let intersection = []
+    list.forEach(item => {
+      if (agg.includes(item)) {
+        intersection.push(item);
+      }
+    })
+    return intersection;
+  })
+}
+
+
+export const sumReducer = (agg, item) => item + agg;
