@@ -12,6 +12,14 @@ export const fileToLines = async (file) => {
   return pipe(split('\n'), filter(Boolean))(data.toString())
 }
 
+export const fileToString = async (file) => {
+  return (await fs.promises.readFile(file)).toString();
+}
+
 export const linesToNumbers = (lines) => {
   return pipe(split('\n'), map(parseInt), filter(Boolean))(lines)
+}
+
+export const isBetween = (n, min, max) => {
+  return (n <= max) && (n >= min);
 }
