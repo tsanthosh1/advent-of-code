@@ -36,5 +36,23 @@ export const intersectionOfLists = (lists) => {
   })
 }
 
+export const chunk = (array, size) => {
+
+  let chunks = []
+  if (size === 0) return []
+
+  for (let i = 0; i < array.length; i+= size) {
+    chunks.push(array.slice(i, i + size))
+  }
+
+  console.log(chunks)
+  return chunks
+}
+
+export const fromPairs = (pairs) => {
+  return pairs.reduce((agg, pair) => {
+    return ({...agg, [pair[1]]: pair[0]});
+  }, {})
+}
 
 export const sumReducer = (agg, item) => item + agg;
