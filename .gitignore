@@ -4,3 +4,7 @@
 .idea/*
 .DS_Store
 package-lock.json
+
+/**/out/
+
+**/.idea/*
